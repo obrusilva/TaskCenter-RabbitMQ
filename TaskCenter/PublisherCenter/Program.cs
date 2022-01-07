@@ -40,6 +40,5 @@ class Program
         props.DeliveryMode = 2;
 
         model.BasicPublish(exchange: "Task_Client", routingKey: "process.company",basicProperties:props, body:body);
-
     }
 }
