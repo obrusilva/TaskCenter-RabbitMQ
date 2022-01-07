@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsumerClient", "ConsumerC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublisherCenter", "PublisherCenter\PublisherCenter.csproj", "{08ECAC01-FA20-4F8B-9674-02BFEFE60228}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskCenter.Dto", "TaskCenter.Dto\TaskCenter.Dto.csproj", "{3D7B28FC-D4FB-435F-8F2A-163FC4BA7102}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskCenter.Dto", "TaskCenter.Dto\TaskCenter.Dto.csproj", "{3D7B28FC-D4FB-435F-8F2A-163FC4BA7102}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    container_name: RabbitMQ
+    hostname: rabbitmq
+    build:
+      context: ./rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+    ports:
+      - "15672:15672"
+      - "15692:15692"
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://localhost:15672 || exit 1"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+
+volumes:
+  rabbitmq_data:
