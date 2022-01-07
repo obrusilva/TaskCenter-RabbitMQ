@@ -36,6 +36,7 @@ class Program
         // precisa criar as propriedades pois precisa usar o DeliveryMode = 2 Persiste, 1 Apenas memoria(nessa caso se o rabbit cair as mensagems somem)
         var props = model.CreateBasicProperties();
         props.Headers = new Dictionary<string, Object> { { "content-type", "application/json" } };
+        // Persiste
         props.DeliveryMode = 2;
 
         model.BasicPublish(exchange: "Task_Client", routingKey: "process.company",basicProperties:props, body:body);
