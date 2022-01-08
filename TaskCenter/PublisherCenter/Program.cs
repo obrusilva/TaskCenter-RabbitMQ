@@ -51,7 +51,7 @@ class Program
 
                 model.QueueDeclare(queue: $"Task_Client_{company.Company}", durable: true, exclusive: false, autoDelete: false, arguments: null);
                 // efetua o bind entre a fila e a exchange
-                model.QueueBind(queue: $"Task_Client_{company.Company}", exchange: "Task_Client", routingKey: $"{company.Process}.{company.Company}", arguments: null);
+                model.QueueBind(queue: $"Task_Client_{company.Company}", exchange: "Task_Client", routingKey: $"*.*.{company.Company}", arguments: null);
 
                 string message = JsonSerializer.Serialize(company);
 
@@ -66,7 +66,7 @@ class Program
                 model.BasicPublish(exchange: "Task_Client", routingKey: $"{company.Process}.{company.Company}", basicProperties: props, body: body);
             }
 
-            Thread.Sleep(300000);
+            Thread.Sleep(200000);
         }
         
     }
