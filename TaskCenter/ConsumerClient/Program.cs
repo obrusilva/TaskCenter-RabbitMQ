@@ -8,7 +8,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string company = "AOC";
+        string company = "LG";
 
         ConnectionFactory factory = new()
         {
@@ -59,21 +59,23 @@ class Program
 
                      var list = new List<dynamic>();
                      if (task.Process.ToUpper().Trim().Equals("MARKETPLACE.STOCK"))
-                     {
-                         list.Add(new { Product = "AAAAA", Stock = 2 });
-                         list.Add(new { Product = "BBBBB", Stock = 4 });
-                         list.Add(new { Product = "CCCCC", Stock = 5 });
-                         list.Add(new { Product = "DDDDD", Stock = 6 });
+                     { 
+                         list.Add(new { Company = company, task.Process, Product = "AAAAA", Stock = 2 });
+                         list.Add(new { Company = company, task.Process, Product = "BBBBB", Stock = 4 });
+                         list.Add(new { Company = company, task.Process, Product = "CCCCC", Stock = 5 });
+                         list.Add(new { Company = company, task.Process, PProduct = "DDDDD", Stock = 6});
                      }
 
                      if (task.Process.ToUpper().Trim().Equals("MARKETPLACE.PRODUCT"))
                      {
-                         list.Add(new { Product = "AAAAA", Description = "Product AAAAA"});
-                         list.Add(new { Product = "BBBBB", Description = "Product BBBBB" });
-                         list.Add(new { Product = "CCCCC", Description = "Product CCCCC" });
-                         list.Add(new { Product = "DDDDD", Description = "Product DDDDD" });
+                         list.Add(new { Company = company, task.Process, Product = "AAAAA", Description = "Product AAAAA"});
+                         list.Add(new { Company = company, task.Process, Product = "BBBBB", Description = "Product BBBBB" });
+                         list.Add(new { Company = company, task.Process, Product = "CCCCC", Description = "Product CCCCC" });
+                         list.Add(new { Company = company, task.Process, Product = "DDDDD", Description = "Product DDDDD" });
                      }
                      model.BasicAck(ea.DeliveryTag, false);
+
+                     ReturnData(factory, company, task.Process, list);
                  }
              }
              catch (Exception)
@@ -86,5 +88,36 @@ class Program
 
         model.BasicConsume(queue: $"Task_Client_{company}", autoAck: false, consumer: consumer);
         Console.ReadLine();
+    }
+
+    static void ReturnData(ConnectionFactory factory, string company,string process, List<dynamic> data)
+    {
+        using var connectionRetunr = factory.CreateConnection();
+
+        using var modelReturn = connectionRetunr.CreateModel();
+
+        //confirmar o envio da mensagem.
+        modelReturn.ConfirmSelect();
+
+        modelReturn.ExchangeDeclare(exchange: "Task_Center", type: "topic", durable: true, autoDelete: false, arguments: null);
+
+        modelReturn.QueueDeclare(queue: $"Task_Center", durable: true, exclusive: false, autoDelete: false, arguments: null);
+        // efetua o bind entre a fila e a exchange
+        modelReturn.QueueBind(queue: $"Task_Center", exchange: "Task_Center", routingKey: $"*.*.{company}", arguments: null);
+
+        foreach (var task in data)
+        {
+            string message = JsonSerializer.Serialize(task);
+
+            var body = Encoding.UTF8.GetBytes(message);
+
+            // precisa criar as propriedades pois precisa usar o DeliveryMode = 2 Persiste, 1 Apenas memoria(nessa caso se o rabbit cair as mensagems somem)
+            var props = modelReturn.CreateBasicProperties();
+            props.Headers = new Dictionary<string, Object> { { "content-type", "application/json" } };
+            // Persiste
+            props.DeliveryMode = 2;
+
+            modelReturn.BasicPublish(exchange: "Task_Center", routingKey: $"{process}.{company}", basicProperties: props, body: body);
+        }
     }
 }
